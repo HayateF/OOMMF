@@ -1,0 +1,140 @@
+# MIF 2.1
+# MIF Example File: exchspring.mif
+# Description: Exchange spring example
+set pi [expr {4*atan(1.0)}]
+set mu0 [expr {4*$pi*1e-7}]
+
+#probably, the unit of D is J m^-2
+set D 0.3
+set DD [expr {$D/1000}]
+
+Specify Oxs_MultiAtlas:atlas {
+  atlas { Oxs_BoxAtlas:cfb {
+       xrange {0 30e-7}
+       yrange {0 5e-7}
+       zrange {0 5e-9}
+	   name cfb
+  } }
+}
+
+Specify Oxs_RectangularMesh:mesh {
+  cellsize {1e-8 1e-8 1e-9}
+  atlas :atlas
+}
+
+Specify Oxs_Exchange6Ngbr:CoFeBW {
+  atlas :atlas
+  default_A 13e-12
+  A {
+    cfb cfb 13e-12
+  }
+}
+
+#DMI is used here
+Specify Oxs_DMExchange6Ngbr:DMEx [subst {
+  default_D $DD
+  atlas :atlas
+  D {
+    cfb cfb $DD
+  }
+}]
+
+#You have to examine the accurate value of CoFeB axial anisotropy.
+Specify Oxs_UniaxialAnisotropy {
+  K1 { Oxs_AtlasScalarField {
+    atlas :atlas
+    values {
+	cfb 520e3
+    }
+  }}
+  axis { Oxs_UniformVectorField {
+    norm 1
+    vector {1 0 0}
+  } }
+}
+
+
+Specify Oxs_UZeeman [subst {
+  multiplier [expr {0.001/$mu0}]
+  Hrange {
+     {0.0 0 0 0 0 0 0}
+  }
+}]
+
+
+#Evolver with spin-torque/spin-flip terms
+# For Permalloy u=J*P*7e-11 (Thiaville-epl)
+proc uprofile { s } {
+    set scale 100000;
+    if {$s<3} {
+        set scale 100000
+    } else {
+        set scale 100000
+    }
+    return $scale
+}
+
+Specify Anv_SpinTEvolve {
+  do_precess 1
+  gamma_LL 2.21e5
+  method rkf54s
+  alpha 0.03
+  u {Oxs_UniformScalarField {
+    value 100000
+  }}
+  u_profile uprofile
+  u_profile_args total_time
+  beta 0.04
+}
+#
+#fixed_spins {
+#  atlas cfb
+#}
+#
+
+Specify Oxs_Demag {}
+
+#Specify Oxs_RungeKuttaEvolve:evolver {
+#  alpha 0.03
+#}
+
+#You have to examine Ms
+Specify Oxs_TimeDriver {
+ basename cfbw
+ evolver Anv_SpinTEvolve
+ vector_field_output_format {binary 4}
+ scalar_output_format %.15g
+ comment {1 deg/ns = 17453293 rad/sec; If Ms=8.6e5, and lambda is small,
+         then mxh=1e-6 translates into dm/dt = 2e5 rad/sec = 0.01 deg/ns}
+ stopping_dm_dt 1
+ stage_count 1
+ mesh :mesh
+ Ms  { Oxs_AtlasScalarField {
+     atlas :atlas
+     values {
+        cfb 1400e3
+     }
+ }}
+ m0 { Oxs_ScriptVectorField {
+    script DomainWall
+    atlas :atlas
+    script_args {relpt}
+  }}
+}
+
+#make Domain Wall
+proc DomainWall {xrel yrel zrel} {
+    if {$xrel<0.3} {
+        return [list 0 0 1]
+    } elseif {$xrel>0.5} {
+        return [list 0 0 1]
+    } else {
+        return [list 0 0 -1]
+    }
+}
+
+Destination archive mmArchive
+Destination disp mmDisp
+Schedule Oxs_TimeDriver::Magnetization archive step 1000
+Schedule Oxs_TimeDriver::Magnetization archive stage 1
+Schedule Oxs_TimeDriver::Magnetization disp step 100
