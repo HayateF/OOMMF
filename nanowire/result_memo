@@ -1,0 +1,9 @@
+like domain wall movement??
+beta = 0.1
+alpha = 0.05
+D = 0.3
+u = 30 (J = 5e7 A/cm^2, P = 1)
+Ms = 1000 emu / cm^3
+A = 1.5 micro erg / cm
+Ha = 5000 Oe
+
