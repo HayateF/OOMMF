@@ -88,6 +88,9 @@ private:
 	OC_REAL8m Xstep; // x distance between 2 positions
 	OC_INDEX n_x; // nb of cells in x direction
 
+	OC_REAL8m tau;	// spin Hall torque strength (modification 1)
+	OC_REAL8m current_direction;	// current_direction +1. or -1. (modification 2)
+
   OC_REAL8m reject_goal,reject_ratio;
   OC_REAL8m min_step_headroom,max_step_headroom;
   OC_REAL8m step_headroom; // Safety margin used in step size adjustment

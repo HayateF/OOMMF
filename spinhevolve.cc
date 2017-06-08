@@ -53,7 +53,6 @@ Anv_SpinHEvolve::Anv_SpinHEvolve(
 
 	tau = GetRealInitValue("tau", 0.);	//modificaton 1
 	current_direction = GetRealInitValue("current_direction", 1.);	//modification 2
-	ThreeVector sigma(0.,-1.0*current_direction,0.);	//modification 3
 
 
 	if(HasInitValue("u")) {
@@ -380,6 +379,7 @@ void Anv_SpinHEvolve::Calculate_dm_dt
 	ThreeVector scratch;
 	ThreeVector scratch2;
 	ThreeVector scratch3;	//modification 7
+	ThreeVector sigma(0.,-1.0*current_direction,0.);	//modification 3
 
   // Move mxH_ data into dm_dt_.  This is fallback behavior for
   // the case where mxH_ and dm_dt_ are not physically the same
@@ -442,7 +442,7 @@ void Anv_SpinHEvolve::Calculate_dm_dt
 			}						
 			// current spin torque terms
 
-			ThreeVector base = spin_[i];0
+			ThreeVector base = spin_[i];
 			ThreeVector gradx_m(0.,0.,0.);
 			ThreeVector m_gradx_m(0.,0.,0.);
 			ThreeVector m_m_gradx_m(0.,0.,0.);
