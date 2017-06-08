@@ -10,15 +10,15 @@ set DD [expr {$D/1000}]
 
 Specify Oxs_MultiAtlas:atlas {
   atlas { Oxs_BoxAtlas:cfb {
-       xrange {0 300e-9}
-       yrange {0 100e-9}
+       xrange {0 3e-6}
+       yrange {0 1e-6}
        zrange {0 2e-9}
 	   name cfb
   } }
 }
 
 Specify Oxs_RectangularMesh:mesh {
-  cellsize {1e-9 1e-9 1e-9}
+  cellsize {2e-9 2e-9 1e-9}
   atlas :atlas
 }
 
@@ -94,8 +94,8 @@ Specify Anv_SpinHEvolve {
   u_profile uprofile
   u_profile_args total_time
   beta 0.01
-  tau 100
-  current_direction 1.0;
+  tau 10000
+  current_direction 1.0
 }
 #
 #fixed_spins {
